@@ -15,7 +15,7 @@ import {
   Profile,
   ProfileOrders
 } from '@pages';
-import { AppHeader } from '@components';
+import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { ProtectedRoute } from '../protected-route';
 
 import '../../index.css';
@@ -83,6 +83,32 @@ export const router = createBrowserRouter(
           }
         />
       </Route>
+
+      <Route
+        path='/feed/:number'
+        element={
+          <Modal title='Детали заказа' onClose={() => {}}>
+            <OrderInfo />
+          </Modal>
+        }
+      />
+      <Route
+        path='/ingredients/:id'
+        element={
+          <Modal title='Детали ингредиента' onClose={() => {}}>
+            <IngredientDetails />
+          </Modal>
+        }
+      />
+      <Route
+        path='/profile/orders/:number'
+        element={
+          <Modal title='Список заказов' onClose={() => {}}>
+            <OrderInfo />
+          </Modal>
+        }
+      />
+
       <Route path='*' element={<NotFound404 />} />
     </Route>
   )
