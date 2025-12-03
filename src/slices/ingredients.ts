@@ -3,7 +3,7 @@ import { getIngredientsApi } from '../utils/burger-api';
 import { TIngredient } from '@utils-types';
 
 export const fetchIngredients = createAsyncThunk(
-  'ingredients/getIngredients',
+  'ingredients/fetchIngredients',
   async () => {
     const ingredients = await getIngredientsApi();
     return ingredients;
@@ -39,10 +39,12 @@ export const ingredientsSlice = createSlice({
       })
       .addCase(fetchIngredients.rejected, (state, action) => {
         state.loading = false;
+        console.log('payload reject:', action.payload);
         state.error = action.error.message;
       })
       .addCase(fetchIngredients.fulfilled, (state, action) => {
         state.loading = false;
+        console.log('payload:', action.payload);
         state.ingredients = action.payload;
       });
   }

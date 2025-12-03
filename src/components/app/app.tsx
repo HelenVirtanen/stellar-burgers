@@ -1,4 +1,5 @@
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import {
   ConstructorPage,
   Feed,
@@ -12,9 +13,10 @@ import {
 } from '@pages';
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { ProtectedRoute } from '../protected-route';
-
+import { fetchIngredients } from '../../slices/ingredients';
 import '../../index.css';
 import styles from './app.module.css';
+import { useDispatch } from '../../services/store';
 
 const App = () => {
   const navigate = useNavigate();
@@ -27,6 +29,12 @@ const App = () => {
 
   const backgroundLocation = location.state?.backgroundLocation;
   console.log(backgroundLocation);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchIngredients());
+  }, [dispatch]);
 
   return (
     <div className={styles.app}>
