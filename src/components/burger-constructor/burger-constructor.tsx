@@ -6,7 +6,7 @@ import { RootState } from '../../services/store';
 import { getOrderModalData, getOrderRequest } from '../../slices/orders';
 
 export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
+  /** DONE: взяты переменные constructorItems, orderRequest и orderModalData из стора */
   const constructorItems = useSelector(
     (state: RootState) => state.burgerConstructor
   );
