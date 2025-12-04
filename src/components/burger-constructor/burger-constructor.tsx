@@ -1,8 +1,9 @@
 import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
-import { useSelector } from 'react-redux';
-import { RootState } from 'src/services/store';
+import { useSelector } from '../../services/store';
+import { RootState } from '../../services/store';
+import { getOrderModalData, getOrderRequest } from '../../slices/orders';
 
 export const BurgerConstructor: FC = () => {
   /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
@@ -10,9 +11,8 @@ export const BurgerConstructor: FC = () => {
     (state: RootState) => state.burgerConstructor
   );
 
-  const orderRequest = false;
-
-  const orderModalData = null;
+  const orderRequest = useSelector(getOrderRequest);
+  const orderModalData = useSelector(getOrderModalData);
 
   const onOrderClick = () => {
     if (!constructorItems.bun || orderRequest) return;
