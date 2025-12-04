@@ -27,8 +27,8 @@ const App = () => {
   const location = useLocation();
   console.log(location);
 
-  const backgroundLocation = location.state?.backgroundLocation;
-  console.log(backgroundLocation);
+  const background = location.state?.background;
+  console.log(background);
 
   const dispatch = useDispatch();
 
@@ -39,7 +39,7 @@ const App = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes location={backgroundLocation || location}>
+      <Routes location={background || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed'>
           <Route index element={<Feed />} />
@@ -107,7 +107,7 @@ const App = () => {
         <Route path='*' element={<NotFound404 />} />
       </Routes>
 
-      {backgroundLocation && (
+      {background && (
         <Routes>
           <Route
             path='/feed/:number'
