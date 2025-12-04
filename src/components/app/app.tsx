@@ -25,10 +25,7 @@ const App = () => {
   };
 
   const location = useLocation();
-  console.log(location);
-
   const background = location.state?.background;
-  console.log(background);
 
   const dispatch = useDispatch();
 
