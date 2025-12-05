@@ -126,3 +126,5 @@ export const {
   getOrderRequest,
   getOrderLoading
 } = orderSlice.selectors;
+
+export const { clearOrderModal } = orderSlice.actions;
