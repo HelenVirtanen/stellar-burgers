@@ -37,7 +37,6 @@ export const createOrder = createAsyncThunk(
 export const fetchOrders = createAsyncThunk('order/getOrders', async () => {
   try {
     const orders = await getOrdersApi();
-    console.log('orders', orders);
     return orders;
   } catch (err: any) {
     return err.message;
