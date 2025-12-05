@@ -5,6 +5,7 @@ import {
   orderBurgerApi
 } from '../utils/burger-api';
 import { TOrder } from '@utils-types';
+import { RootState } from 'src/services/store';
 
 type TOrderState = {
   orders: TOrder[];
@@ -64,12 +65,6 @@ export const orderSlice = createSlice({
       state.orderModalData = null;
     }
   },
-  selectors: {
-    getOrders: (state) => state.orders,
-    getOrderModalData: (state) => state.orderModalData,
-    getOrderRequest: (state) => state.orderRequest,
-    getOrderLoading: (state) => state.loading
-  },
   extraReducers: (builder) => {
     builder
       .addCase(createOrder.pending, (state) => {
@@ -119,11 +114,10 @@ export const orderSlice = createSlice({
   }
 });
 
-export const {
-  getOrders,
-  getOrderModalData,
-  getOrderRequest,
-  getOrderLoading
-} = orderSlice.selectors;
+export const getOrders = (state: RootState) => state.orders.orders;
+export const getOrderModalData = (state: RootState) =>
+  state.orders.orderModalData;
+export const getOrderRequest = (state: RootState) => state.orders.orderRequest;
+export const getOrderLoading = (state: RootState) => state.orders.loading;
 
 export const { clearOrderModal } = orderSlice.actions;
