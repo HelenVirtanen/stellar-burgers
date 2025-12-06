@@ -11,7 +11,7 @@ import {
   resetPasswordApi
 } from '../utils/burger-api';
 import { TUser } from '@utils-types';
-import { deleteCookie, setCookie } from '../utils/cookie';
+import { deleteCookie, setCookie, getCookie } from '../utils/cookie';
 import { RootState } from '../services/store';
 
 type TUserState = {
@@ -168,6 +168,7 @@ export const userSlice = createSlice({
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.loginUserError = action.payload;
+        state.isAuthChecked = true;
         state.loading = false;
       });
     builder
@@ -186,6 +187,20 @@ export const userSlice = createSlice({
       });
   }
 });
+
+export const checkUserAuth = createAsyncThunk(
+  'user/checkUser',
+  async (_, { dispatch }) => {
+    const token = getCookie('accessToken');
+    if (token) {
+      await dispatch(fetchUser()).finally(() => {
+        dispatch(userSlice.actions.authChecked());
+      });
+    } else {
+      dispatch(userSlice.actions.authChecked());
+    }
+  }
+);
 
 export const getUserData = (state: RootState) => state.user.data;
 export const getUserLoading = (state: RootState) => state.user.loading;
