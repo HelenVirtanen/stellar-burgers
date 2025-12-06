@@ -26,7 +26,7 @@ export const fetchFeeds = createAsyncThunk('feeds/getFeeds', async () => {
     const feeds = await getFeedsApi();
     return feeds;
   } catch (err: any) {
-    return err.message;
+    throw new Error(err.message);
   }
 });
 

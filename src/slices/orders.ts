@@ -30,7 +30,7 @@ export const createOrder = createAsyncThunk(
       const createdOrder = await orderBurgerApi(ingredients);
       return { order: createdOrder.order, name: createdOrder.name };
     } catch (err: any) {
-      return err.message;
+      throw new Error(err.message);
     }
   }
 );
@@ -40,7 +40,7 @@ export const fetchOrders = createAsyncThunk('order/getOrders', async () => {
     const orders = await getOrdersApi();
     return orders;
   } catch (err: any) {
-    return err.message;
+    throw new Error(err.message);
   }
 });
 
@@ -49,10 +49,9 @@ export const getOrderById = createAsyncThunk(
   async (id: number) => {
     try {
       const response = await getOrderByNumberApi(id);
-      console.log('order by id', response.orders[0]);
       return response.orders[0];
     } catch (err: any) {
-      return err.message;
+      throw new Error(err.message);
     }
   }
 );
