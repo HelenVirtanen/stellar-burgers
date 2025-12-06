@@ -172,6 +172,17 @@ export const userSlice = createSlice({
         state.loading = false;
       });
     builder
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.loading = false;
+      })
+      .addCase(updateUser.rejected, (state) => {
+        state.loading = false;
+      });
+    builder
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
       })
