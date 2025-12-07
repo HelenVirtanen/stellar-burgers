@@ -21,26 +21,37 @@ export const initialState: TFeedState = {
   error: null
 };
 
-export const fetchFeeds = createAsyncThunk('feeds/getFeeds', async () => {
+export const fetchFeeds = createAsyncThunk<
+  { orders: TOrder[]; total: number; totalToday: number },
+  void,
+  { rejectValue: string }
+>('feeds/getFeeds', async (_, { rejectWithValue }) => {
   try {
     const feeds = await getFeedsApi();
     return feeds;
-  } catch (err: any) {
-    throw new Error(err.message);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
+    throw new Error('Неизвестная ошибка получения данных заказов');
   }
 });
 
-export const getOrderByNumber = createAsyncThunk(
-  'feeds/getOrderByNumber',
-  async (num: number) => {
-    try {
-      const selectedOrder = await getOrderByNumberApi(num);
-      return selectedOrder;
-    } catch (err: any) {
-      throw new Error(err.message);
+export const getOrderByNumber = createAsyncThunk<
+  { orders: TOrder[] },
+  number,
+  { rejectValue: string }
+>('feeds/getOrderByNumber', async (num, { rejectWithValue }) => {
+  try {
+    const selectedOrder = await getOrderByNumberApi(num);
+    return selectedOrder;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
     }
+    throw new Error('Неизвестная ошибка получения данных по номеру заказа');
   }
-);
+});
 
 export const feedSlice = createSlice({
   name: 'feeds',
@@ -64,7 +75,7 @@ export const feedSlice = createSlice({
       })
       .addCase(fetchFeeds.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload ?? action.error.message;
       })
       .addCase(getOrderByNumber.fulfilled, (state, action) => {
         state.loading = false;
@@ -75,7 +86,7 @@ export const feedSlice = createSlice({
       })
       .addCase(getOrderByNumber.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload ?? action.error.message;
       });
   }
 });

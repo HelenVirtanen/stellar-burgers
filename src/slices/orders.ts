@@ -23,38 +23,47 @@ export const initialState: TOrderState = {
   orderRequest: false
 };
 
-export const createOrder = createAsyncThunk(
-  'orders/createOrder',
-  async (ingredients: string[]) => {
-    try {
-      const createdOrder = await orderBurgerApi(ingredients);
-      return { order: createdOrder.order, name: createdOrder.name };
-    } catch (err: any) {
-      throw new Error(err.message);
-    }
-  }
-);
-
-export const fetchOrders = createAsyncThunk('order/getOrders', async () => {
+export const createOrder = createAsyncThunk<
+  { order: TOrder; name: string },
+  string[],
+  { rejectValue: string }
+>('orders/createOrder', async (ingredients, { rejectWithValue }) => {
   try {
-    const orders = await getOrdersApi();
-    return orders;
-  } catch (err: any) {
-    throw new Error(err.message);
+    const createdOrder = await orderBurgerApi(ingredients);
+    return { order: createdOrder.order, name: createdOrder.name };
+  } catch (err: unknown) {
+    if (err instanceof Error) return rejectWithValue(err.message);
+    return rejectWithValue('Неизвестная ошибка при создании заказа');
   }
 });
 
-export const getOrderById = createAsyncThunk(
-  'orders/getOrderById',
-  async (id: number) => {
-    try {
-      const response = await getOrderByNumberApi(id);
-      return response.orders[0];
-    } catch (err: any) {
-      throw new Error(err.message);
-    }
+export const fetchOrders = createAsyncThunk<
+  TOrder[],
+  void,
+  { rejectValue: string }
+>('order/getOrders', async (_, { rejectWithValue }) => {
+  try {
+    const orders = await getOrdersApi();
+    return orders;
+  } catch (err: unknown) {
+    if (err instanceof Error) return rejectWithValue(err.message);
+    return rejectWithValue('Неизвестная ошибка при получении заказов');
   }
-);
+});
+
+export const getOrderById = createAsyncThunk<
+  TOrder,
+  number,
+  { rejectValue: string }
+>('orders/getOrderById', async (id, { rejectWithValue }) => {
+  try {
+    const response = await getOrderByNumberApi(id);
+    return response.orders[0];
+  } catch (err: unknown) {
+    if (err instanceof Error) return rejectWithValue(err.message);
+    return rejectWithValue('Неизвестная ошибка при получении заказа по ID');
+  }
+});
 
 export const orderSlice = createSlice({
   name: 'orders',
@@ -80,7 +89,7 @@ export const orderSlice = createSlice({
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
         state.orderRequest = false;
-        state.error = action.error.message;
+        state.error = action.payload ?? action.error.message;
       });
 
     builder
@@ -94,7 +103,7 @@ export const orderSlice = createSlice({
       })
       .addCase(getOrderById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload ?? action.error.message;
       });
     builder
       .addCase(fetchOrders.pending, (state) => {
@@ -103,7 +112,7 @@ export const orderSlice = createSlice({
       })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload ?? action.error.message;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.loading = false;

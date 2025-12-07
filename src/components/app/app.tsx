@@ -111,7 +111,7 @@ const App = () => {
           <Route
             path='/feed/:number'
             element={
-              <Modal title='Детали заказа' onClose={handleGoBack}>
+              <Modal title='' onClose={handleGoBack}>
                 <OrderInfo />
               </Modal>
             }
@@ -128,7 +128,7 @@ const App = () => {
             path='/profile/orders/:number'
             element={
               <ProtectedRoute>
-                <Modal title='Детали заказа' onClose={handleGoBack}>
+                <Modal title='' onClose={handleGoBack}>
                   <OrderInfo />
                 </Modal>
               </ProtectedRoute>

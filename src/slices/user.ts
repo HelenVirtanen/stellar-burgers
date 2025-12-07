@@ -18,7 +18,7 @@ type TUserState = {
   isAuthChecked: boolean;
   isAuthenticated: boolean;
   data: TUser | null;
-  loginUserError: any | null;
+  loginUserError: string | null;
   loading: boolean;
 };
 
@@ -30,66 +30,70 @@ export const initialState: TUserState = {
   loading: false
 };
 
-export const loginUser = createAsyncThunk(
-  'user/loginUser',
-  async ({ email, password }: TLoginData, { rejectWithValue }) => {
-    const response = await loginUserApi({ email, password });
-    if (!response?.success) {
-      return rejectWithValue(response || 'Ошибка авторизации');
-    }
-
-    const { user, refreshToken, accessToken } = response;
-    setCookie('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    return user;
+export const loginUser = createAsyncThunk<
+  TUser,
+  TLoginData,
+  { rejectValue: string }
+>('user/loginUser', async ({ email, password }, { rejectWithValue }) => {
+  const response = await loginUserApi({ email, password });
+  if (!response?.success) {
+    return rejectWithValue('Ошибка авторизации');
   }
-);
 
-export const registerUser = createAsyncThunk<TUser, TRegisterData>(
-  'user/registerUser',
-  async (creds, { rejectWithValue }) => {
-    const response = await registerUserApi(creds);
-    if (!response.success) {
-      return rejectWithValue(response);
-    }
+  const { user, refreshToken, accessToken } = response;
+  setCookie('accessToken', accessToken);
+  localStorage.setItem('refreshToken', refreshToken);
+  return user;
+});
 
-    const { user, refreshToken, accessToken } = response;
-    localStorage.setItem('refreshToken', String(refreshToken));
-    setCookie('accessToken', String(accessToken));
-    return user;
+export const registerUser = createAsyncThunk<
+  TUser,
+  TRegisterData,
+  { rejectValue: string }
+>('user/registerUser', async (creds, { rejectWithValue }) => {
+  const response = await registerUserApi(creds);
+  if (!response.success) {
+    return rejectWithValue('Ошибка регистрации');
   }
-);
 
-export const fetchUser = createAsyncThunk(
+  const { user, refreshToken, accessToken } = response;
+  localStorage.setItem('refreshToken', String(refreshToken));
+  setCookie('accessToken', String(accessToken));
+  return user;
+});
+
+export const fetchUser = createAsyncThunk<TUser, void, { rejectValue: string }>(
   'user/getUser',
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUserApi();
-      if (!response.success) return rejectWithValue(response);
+      if (!response.success)
+        return rejectWithValue('Ошибка получения данных о пользователе');
       return response.user;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (error) {
+      return rejectWithValue('Ошибка получения данных о пользователе');
     }
   }
 );
 
-export const updateUser = createAsyncThunk<TUser, Partial<TRegisterData>>(
-  'users/updateUser',
-  async (data, { rejectWithValue }) => {
-    const response = await updateUserApi(data);
-    if (!response.success) {
-      return rejectWithValue(response);
-    }
-    return response.user;
+export const updateUser = createAsyncThunk<
+  TUser,
+  Partial<TRegisterData>,
+  { rejectValue: string }
+>('users/updateUser', async (data, { rejectWithValue }) => {
+  const response = await updateUserApi(data);
+  if (!response.success) {
+    return rejectWithValue('Ошибка обновления пользователя');
   }
-);
+  return response.user;
+});
 
-export const logoutUser = createAsyncThunk(
+export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
   'users/logoutUser',
   async (_, { rejectWithValue }) => {
     const response = await logoutApi();
     if (!response.success) {
-      return rejectWithValue(response);
+      return rejectWithValue('Неизвестная ошибка выхода пользователя');
     }
     localStorage.removeItem('refreshToken');
     deleteCookie('accessToken');
@@ -140,7 +144,10 @@ export const userSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.isAuthChecked = true;
         state.loading = false;
-        state.loginUserError = action.payload;
+        state.loginUserError =
+          action.payload ??
+          action.error.message ??
+          'Неизвестная ошибка авторизации';
       });
     builder
       .addCase(registerUser.pending, (state) => {
@@ -154,7 +161,10 @@ export const userSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.loginUserError = action.payload;
+        state.loginUserError =
+          action.payload ??
+          action.error.message ??
+          'Неизвестная ошибка регистрации';
       });
     builder
       .addCase(fetchUser.pending, (state) => {
@@ -167,7 +177,10 @@ export const userSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchUser.rejected, (state, action) => {
-        state.loginUserError = action.payload;
+        state.loginUserError =
+          action.payload ??
+          action.error.message ??
+          'Неизвестная ошибка получения данных о пользователе';
         state.isAuthChecked = true;
         state.loading = false;
       });
@@ -179,8 +192,12 @@ export const userSlice = createSlice({
         state.data = action.payload;
         state.loading = false;
       })
-      .addCase(updateUser.rejected, (state) => {
+      .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
+        state.loginUserError =
+          action.payload ??
+          action.error.message ??
+          'Неизвестная ошибка обновления данных пользователя';
       });
     builder
       .addCase(logoutUser.pending, (state) => {
@@ -194,7 +211,10 @@ export const userSlice = createSlice({
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
-        state.loginUserError = action.payload;
+        state.loginUserError =
+          action.payload ??
+          action.error.message ??
+          'Неизвестная ошибка выхода пользователя';
       });
   }
 });
