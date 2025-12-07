@@ -2,50 +2,56 @@ import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from '../../services/store';
 import { updateUser } from '../../slices/user';
+import { useForm } from '../../hooks/useForm';
+
+type FormState = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 export const Profile: FC = () => {
   const dispatch = useDispatch();
   /** DONE: взять переменную из стора */
   const user = useSelector((store) => store.user.data);
 
-  const [formValue, setFormValue] = useState({
+  const {
+    values: formValue,
+    handleChange,
+    resetForm,
+    isChanged
+  } = useForm<FormState>({
     name: user?.name || '',
     email: user?.email || '',
     password: ''
   });
 
   useEffect(() => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      name: user?.name || '',
-      email: user?.email || ''
-    }));
-  }, [user]);
-
-  const isFormChanged =
-    formValue.name !== user?.name ||
-    formValue.email !== user?.email ||
-    !!formValue.password;
-
-  const handleSubmit = (e: SyntheticEvent) => {
-    e.preventDefault();
-    dispatch(updateUser(formValue));
-  };
-
-  const handleCancel = (e: SyntheticEvent) => {
-    e.preventDefault();
-    setFormValue({
+    resetForm({
       name: user?.name || '',
       email: user?.email || '',
       password: ''
     });
+  }, []);
+
+  const isFormChanged = isChanged({
+    name: user?.name || '',
+    email: user?.email || '',
+    password: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch(updateUser(formValue));
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value
-    }));
+  const handleCancel = (e: React.FormEvent) => {
+    e.preventDefault();
+    resetForm({
+      name: user?.name || '',
+      email: user?.email || '',
+      password: ''
+    });
   };
 
   return (
@@ -54,7 +60,7 @@ export const Profile: FC = () => {
       isFormChanged={isFormChanged}
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
-      handleInputChange={handleInputChange}
+      handleInputChange={handleChange}
     />
   );
 };
