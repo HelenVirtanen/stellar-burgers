@@ -56,6 +56,10 @@ describe('Интеграционные тесты для страницы кон
     cy.fixture('login.json').then((loginData) => {
       cy.setCookie('accessToken', loginData.accessToken);
       cy.setCookie('refreshToken', loginData.refreshToken);
+      cy.window().then((win) => {
+        win.localStorage.setItem('accessToken', loginData.accessToken);
+        win.localStorage.setItem('refreshToken', loginData.refreshToken);
+      });
     });
 
     // Мок ответа на запрос данных пользователя
@@ -112,5 +116,9 @@ describe('Интеграционные тесты для страницы кон
 
     // Проверка сброса конструктора
     cy.get('[data-testid="burger-constructor"]').should('not.have.descendants');
+
+    // Очистка cookies и localStorage
+    cy.clearCookies();
+    cy.clearLocalStorage();
   });
 });
