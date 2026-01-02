@@ -9,8 +9,51 @@ describe('Интеграционные тесты для страницы кон
   });
 
   it('Добавление булки, начинки и соуса в конструктор', () => {
-    cy.get('[data-testid="ingredients-buns"]').find('button').first().click();
-    cy.get('[data-testid="ingredients-mains"]').find('button').first().click();
-    cy.get('[data-testid="ingredients-sauces"]').find('button').first().click();
+    // Добавляем булку
+    cy.get('[data-testid="ingredients-buns"]')
+      .contains('Флюоресцентная булка R2-D3')
+      .parent()
+      .find('button')
+      .click();
+
+    cy.wait(1000);
+
+    // Добавляем начинку
+    cy.get('[data-testid="ingredients-mains"]')
+      .contains('Биокотлета из марсианской Магнолии')
+      .parent()
+      .find('button')
+      .click();
+
+    cy.wait(1000);
+
+    // Добавляем соус
+    cy.get('[data-testid="ingredients-sauces"]')
+      .contains('Соус Spicy-X')
+      .parent()
+      .find('button')
+      .click();
+  });
+
+  it('Открытие и закрытие модалки по крестику', () => {
+    cy.get('[data-testid="ingredients-buns"]')
+      .contains('Флюоресцентная булка R2-D3')
+      .click();
+
+    cy.get('[data-testid="modal"]').should('be.visible');
+    cy.wait(1000);
+    cy.get('[data-testid="close-modal"]').click();
+    cy.get('[data-testid="modal"]').should('not.exist');
+  });
+
+  it('Открытие и закрытие модалки через оверлей', () => {
+    cy.get('[data-testid="ingredients-mains"]')
+      .contains('Филе Люминесцентного тетраодонтимформа')
+      .click();
+
+    cy.get('[data-testid="modal"]').should('be.visible');
+    cy.wait(1000);
+    cy.get('[data-testid="modal-overlay"]').click({ force: true });
+    cy.get('[data-testid="modal"]').should('not.exist');
   });
 });
