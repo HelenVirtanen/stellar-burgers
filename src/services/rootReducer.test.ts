@@ -1,4 +1,3 @@
-// rootReducer.test.ts
 import { rootReducer } from './rootReducer';
 import { ingredientsSlice } from '../slices/ingredients';
 import { constructorSlice } from '../slices/burger-constructor';
