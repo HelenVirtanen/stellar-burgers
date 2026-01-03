@@ -33,6 +33,15 @@ const config = {
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
+  collectCoverage: true,
+  collectCoverageFrom: [
+    '**/rootReducer.ts',
+    '**/slices/**/*',
+    '!**/node_modules/**',
+    '!**/*.test.{ts,tsx}'
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
 
   // A list of reporter names that Jest uses when writing coverage reports
   // coverageReporters: [
@@ -205,7 +214,7 @@ const config = {
         // настройки для ts-jest
       }
     ]
-  }
+  },
 };
 
 module.exports = config;
