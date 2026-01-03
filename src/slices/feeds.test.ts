@@ -2,7 +2,7 @@ import { feedSlice, initialState, fetchFeeds, getOrderByNumber } from './feeds';
 import { TOrder } from '@utils-types';
 
 const reducer = feedSlice.reducer;
-describe('feeds slice', () => {
+describe('Обработка экшенов feeds slice', () => {
   const orders: TOrder[] = [
     {
       _id: '1',
