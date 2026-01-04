@@ -1,37 +1,51 @@
-/// <reference types="cypress" />
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-//
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
+export {};
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      addIngredient(
+        categoryTestId: string,
+        ingredientName: string
+      ): Chainable<void>;
+      openIngredientModal(ingredientName: string): Chainable<void>;
+      closeModal(method?: 'cross' | 'overlay' | 'esc'): Chainable<void>;
+      loginWithMock(): Chainable<void>;
+    }
+  }
+}
+
+Cypress.Commands.add('addIngredient', (categoryTestId, ingredientName) => {
+  cy.get(`[data-testid="${categoryTestId}"]`)
+    .contains(ingredientName)
+    .parent()
+    .find('button')
+    .click();
+});
+
+Cypress.Commands.add('openIngredientModal', (ingredientName) => {
+  cy.get(
+    '[data-testid="ingredients-buns"], [data-testid="ingredients-mains"], [data-testid="ingredients-sauces"]'
+  )
+    .contains(ingredientName)
+    .click();
+  cy.get('[data-testid="modal"]').should('be.visible');
+  cy.get('[data-testid="ingredient-name"]')
+    .contains(ingredientName)
+    .should('be.visible');
+});
+
+Cypress.Commands.add('closeModal', (method = 'cross') => {
+  const modal = cy.get('[data-testid="modal"]');
+  switch (method) {
+    case 'cross':
+      cy.get('[data-testid="close-modal"]').click();
+      break;
+    case 'overlay':
+      cy.get('[data-testid="modal-overlay"]').click({ force: true });
+      break;
+    case 'esc':
+      cy.get('body').type('{esc}');
+      break;
+  }
+
+  cy.get('[data-testid="modal"]').should('not.exist');
+});

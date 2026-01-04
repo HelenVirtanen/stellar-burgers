@@ -14,60 +14,27 @@ describe('Интеграционные тесты для страницы кон
   });
 
   it('Добавление булки, начинки и соуса в конструктор', () => {
-    // Добавляем булку
-    cy.get('[data-testid="ingredients-buns"]')
-      .contains('Флюоресцентная булка R2-D3')
-      .parent()
-      .find('button')
-      .click();
-
-    // Добавляем начинку
-    cy.get('[data-testid="ingredients-mains"]')
-      .contains('Биокотлета из марсианской Магнолии')
-      .parent()
-      .find('button')
-      .click();
-
-    // Добавляем соус
-    cy.get('[data-testid="ingredients-sauces"]')
-      .contains('Соус Spicy-X')
-      .parent()
-      .find('button')
-      .click();
+    cy.addIngredient('ingredients-buns', 'Флюоресцентная булка R2-D3');
+    cy.addIngredient('ingredients-mains', 'Биокотлета из марсианской Магнолии');
+    cy.addIngredient('ingredients-sauces', 'Соус Spicy-X');
   });
 
-  it('Открытие, проверка содержимого модалки и закрытие модалки по крестику', () => {
-    const ingredientName = 'Флюоресцентная булка R2-D3';
-
-    cy.get('[data-testid="ingredients-buns"]').contains(ingredientName).click();
-
-    cy.get('[data-testid="modal"]').should('be.visible');
-    cy.get('[data-testid="ingredient-name"]')
-      .contains(ingredientName)
-      .should('be.visible');
-
-    cy.get('[data-testid="close-modal"]').click();
-    cy.get('[data-testid="modal"]').should('not.exist');
+  it('Открытие, проверка названия ингредиента и закрытие модалки по крестику', () => {
+    const ingredient = 'Флюоресцентная булка R2-D3';
+    cy.openIngredientModal(ingredient);
+    cy.closeModal('cross');
   });
 
   it('Закрытие модалки через оверлей', () => {
-    cy.get('[data-testid="ingredients-mains"]')
-      .contains('Филе Люминесцентного тетраодонтимформа')
-      .click();
-    cy.get('[data-testid="modal"]').should('be.visible');
-
-    cy.get('[data-testid="modal-overlay"]').click({ force: true });
-    cy.get('[data-testid="modal"]').should('not.exist');
+    const ingredient = 'Филе Люминесцентного тетраодонтимформа';
+    cy.openIngredientModal(ingredient);
+    cy.closeModal('overlay');
   });
 
   it('Закрытие модалки по нажатию Esc', () => {
-    cy.get('[data-testid="ingredients-sauces"]')
-      .contains('Соус фирменный Space Sauce')
-      .click();
-    cy.get('[data-testid="modal"]').should('be.visible');
-
-    cy.get('body').type('{esc}');
-    cy.get('[data-testid="modal"]').should('not.exist');
+    const ingredient = 'Соус фирменный Space Sauce';
+    cy.openIngredientModal(ingredient);
+    cy.closeModal('esc');
   });
 
   it('Создание заказа', () => {
@@ -97,23 +64,12 @@ describe('Интеграционные тесты для страницы кон
     cy.visit('/');
 
     // Сборка бургера
-    cy.get('[data-testid="ingredients-buns"]')
-      .contains('Флюоресцентная булка R2-D3')
-      .parent()
-      .find('button')
-      .click();
-
-    cy.get('[data-testid="ingredients-mains"]')
-      .contains('Филе Люминесцентного тетраодонтимформа')
-      .parent()
-      .find('button')
-      .click();
-
-    cy.get('[data-testid="ingredients-mains"]')
-      .contains('Биокотлета из марсианской Магнолии')
-      .parent()
-      .find('button')
-      .click();
+    cy.addIngredient('ingredients-buns', 'Флюоресцентная булка R2-D3');
+    cy.addIngredient(
+      'ingredients-mains',
+      'Филе Люминесцентного тетраодонтимформа'
+    );
+    cy.addIngredient('ingredients-mains', 'Биокотлета из марсианской Магнолии');
 
     // Клик по кнопке "Оформить заказ"
     cy.get('button').contains('Оформить заказ').click();
@@ -130,8 +86,7 @@ describe('Интеграционные тесты для страницы кон
     });
 
     // Проверка закрытия модального окна
-    cy.get('[data-testid="close-modal"]').click();
-    cy.get('[data-testid="modal"]').should('not.exist');
+    cy.closeModal('cross');
 
     // Проверка сброса конструктора
     cy.get('[data-testid="burger-constructor"]').should('not.have.descendants');
