@@ -4,8 +4,13 @@ describe('Интеграционные тесты для страницы кон
       fixture: 'ingredients.json'
     }).as('getIngredients');
 
-    cy.visit('http://localhost:4000');
+    cy.visit('/');
     cy.wait('@getIngredients');
+  });
+
+  afterEach('Очистка cookies и localStorage', () => {
+    cy.clearCookies();
+    cy.clearLocalStorage();
   });
 
   it('Добавление булки, начинки и соуса в конструктор', () => {
@@ -31,23 +36,37 @@ describe('Интеграционные тесты для страницы кон
       .click();
   });
 
-  it('Открытие и закрытие модалки по крестику', () => {
-    cy.get('[data-testid="ingredients-buns"]')
-      .contains('Флюоресцентная булка R2-D3')
-      .click();
+  it('Открытие, проверка содержимого модалки и закрытие модалки по крестику', () => {
+    const ingredientName = 'Флюоресцентная булка R2-D3';
+
+    cy.get('[data-testid="ingredients-buns"]').contains(ingredientName).click();
 
     cy.get('[data-testid="modal"]').should('be.visible');
+    cy.get('[data-testid="ingredient-name"]')
+      .contains(ingredientName)
+      .should('be.visible');
+
     cy.get('[data-testid="close-modal"]').click();
     cy.get('[data-testid="modal"]').should('not.exist');
   });
 
-  it('Открытие и закрытие модалки через оверлей', () => {
+  it('Закрытие модалки через оверлей', () => {
     cy.get('[data-testid="ingredients-mains"]')
       .contains('Филе Люминесцентного тетраодонтимформа')
       .click();
-
     cy.get('[data-testid="modal"]').should('be.visible');
+
     cy.get('[data-testid="modal-overlay"]').click({ force: true });
+    cy.get('[data-testid="modal"]').should('not.exist');
+  });
+
+  it('Закрытие модалки по нажатию Esc', () => {
+    cy.get('[data-testid="ingredients-sauces"]')
+      .contains('Соус фирменный Space Sauce')
+      .click();
+    cy.get('[data-testid="modal"]').should('be.visible');
+
+    cy.get('body').type('{esc}');
     cy.get('[data-testid="modal"]').should('not.exist');
   });
 
@@ -75,7 +94,7 @@ describe('Интеграционные тесты для страницы кон
       cy.intercept('POST', '/api/orders', { statusCode: 200, body: response });
     });
 
-    cy.visit('http://localhost:4000');
+    cy.visit('/');
 
     // Сборка бургера
     cy.get('[data-testid="ingredients-buns"]')
@@ -116,9 +135,5 @@ describe('Интеграционные тесты для страницы кон
 
     // Проверка сброса конструктора
     cy.get('[data-testid="burger-constructor"]').should('not.have.descendants');
-
-    // Очистка cookies и localStorage
-    cy.clearCookies();
-    cy.clearLocalStorage();
   });
 });
